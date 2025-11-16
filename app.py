@@ -56,13 +56,13 @@ def get_years(airport):
     return sorted(years)
 
 
-st.title("METAR 全年温度热图生成器（多机场、多年份）")
+st.title("温度热图查询")
 
 airports = get_airports()
-airport = st.selectbox("选择机场（ICAO）", airports)
+airport = st.selectbox("机场", airports)
 
 years = get_years(airport)
-year = st.selectbox("选择年份", years)
+year = st.selectbox("年份", years)
 
 filepath = f"{DATA_DIR}/{airport}/{year}.txt"
 
@@ -93,3 +93,4 @@ plt.xticks(
 plt.yticks(rotation=0)
 
 st.pyplot(plt)
+
