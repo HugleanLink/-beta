@@ -3,6 +3,7 @@ import pandas as pd
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
+import io
 
 st.set_page_config(page_title="METAR 温度热图", layout="wide")
 
@@ -81,9 +82,9 @@ sns.heatmap(
     linewidths=0.3,
     cbar_kws={"label": "Temperature (°C)"}
 )
-plt.title(f"{airport} {year} 温度热力图")
-plt.xlabel("时间")
-plt.ylabel("月份")
+plt.title(f"{airport} {year} HeatMap")
+plt.xlabel("Time")
+plt.ylabel("Month")
 
 plt.xticks(
     ticks=range(0, 48, 2),
@@ -94,8 +95,9 @@ plt.yticks(rotation=0)
 
 st.pyplot(plt)
 buf = io.BytesIO()
-plt.savefig(buf, format='png')
+fig.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
 
 
 
