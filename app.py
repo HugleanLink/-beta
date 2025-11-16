@@ -5,87 +5,85 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import io
 
-st.set_page_config(page_title="METAR 温度热图", layout="wide")
-data="metar_data"
+data = "metar_data"
 
 def ReadMetar(path):
-    df=pd.read_csv(path)
-    df.columns=["ICAO", "Time", "Metar"]
-    temperature=[]
-    for i in df["Metar"]:
-        parts=i.split()
-        temp=None
-        for i1 in parts:
-            if "/" in i1 and len(i1)<=7 and ("M" in i1 or i1[0].isdigit()):
-                tem=i1.split("/")[0]
-                if tem.startswith("M"):
-                    temp = -int(tem[1:])
-                else:
-                    temp = int(tem)
-            else:
-                pass
+    df = pd.read_csv(path)
+    df.columns = ["ICAO", "Time", "Metar"]
+    
+    temperature = []
+    for metar in df["Metar"]:
+        parts = metar.split()
+        temp = None
+        for p in parts:
+            # 寻找类似  M06/M07  或  06/07 的部分
+            if "/" in p and len(p) <= 7:
+                t = p.split("/")[0]
+                if t.startswith("M"):
+                    temp = -int(t[1:])
+                elif t[0].isdigit():
+                    temp = int(t)
+                break
         temperature.append(temp)
-    df["Temp_C"]=temperature
+
+    df["Temp_C"] = temperature
     df["Time"] = pd.to_datetime(df["Time"])
     df["month"] = df["Time"].dt.month
-    df["half_hour"]=df["Time"].dt.hour * 2 + df["Time"].dt.minute // 30
+    df["half_hour"] = df["Time"].dt.hour * 2 + df["Time"].dt.minute // 30
     return df
 
 
 def ReadAirports():
-    airports=[]
-    whatisinside=os.listdir(data)
-    for i3 in whatisinside:
-        full_path=os.path.join(data, i3)
-        if os.path.isdir(full_path):
-            airports.append(i3)
-            SortedAirports=sorted(airports)
-    return SortedAirports
+    airports = []
+    for item in os.listdir(data):
+        if os.path.isdir(os.path.join(data, item)):
+            airports.append(item)
+    return sorted(airports)
 
 
 def ReadYears(airport):
-    years=[]
-    path1=os.path.join(data, airport)
-    flies=os.listdir(path1)
-    for i4 in flies:
-        if i4.endswith(".txt"):
-            i4.replace(".txt", "")
-            years.append(i4)
+    years = []
+    path = os.path.join(data, airport)
+    for f in os.listdir(path):
+        if f.endswith(".txt"):
+            years.append(f.replace(".txt", ""))
     return sorted(years)
 
 
-airports=ReadAirports()
-airport=st.selectbox("选择机场", airports)
+airports = ReadAirports()
+airport = st.selectbox("选择机场", airports)
 years = ReadYears(airport)
 year = st.selectbox("选择年份", years)
+
 filepath = f"{data}/{airport}/{year}.txt"
 st.info(f"当前读取：{filepath}")
+
 df = ReadMetar(filepath)
 pivot = df.groupby(["month", "half_hour"])["Temp_C"].mean().unstack()
 
-
-plt.figure(figsize=(18, 6))
+fig, ax = plt.subplots(figsize=(18, 6))
 sns.heatmap(
     pivot,
     cmap="coolwarm",
     linewidths=0.3,
-    cbar_kws={"label": "气温 (°C)"}
+    cbar_kws={"label": "气温 (°C)"},
+    ax=ax
 )
-plt.title(f"{airport} {year} 温度热力图")
-plt.xlabel("时间")
-plt.ylabel("月份")
-plt.xticks(
-    ticks=range(0, 48, 2),
-    labels=[f"{h:02d}:00" for h in range(24)],
-    rotation=45
-)
-plt.yticks(rotation=0)
-fig, ax = plt.subplots()
-st.pyplot(plt)
 
+ax.set_title(f"{airport} {year} 温度热力图")
+ax.set_xlabel("时间")
+ax.set_ylabel("月份")
+
+ax.set_xticks(range(0, 48, 2))
+ax.set_xticklabels([f"{h:02d}:00" for h in range(24)], rotation=45)
+ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
+
+st.pyplot(fig)
 
 buf = io.BytesIO()
-plt.savefig(buf, format='png')
+fig.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
+
 
 
