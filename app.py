@@ -4,8 +4,11 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 import io
+import matplotlib
 
 data = "metar_data"
+matplotlib.rcParams['font.sans-serif'] = ['SimHei']
+matplotlib.rcParams['axes.unicode_minus'] = False
 
 def ReadMetar(path):
     df = pd.read_csv(path)
@@ -83,6 +86,7 @@ st.pyplot(fig)
 buf = io.BytesIO()
 fig.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
 
 
 
