@@ -57,7 +57,7 @@ def get_years(airport):
     return sorted(years)
 
 
-st.title("METAR 全年温度热图生成器")
+st.title("温度热图查询")
 
 airports = get_airports()
 airport = st.selectbox("选择机场", airports)
@@ -95,8 +95,9 @@ plt.yticks(rotation=0)
 
 st.pyplot(plt)
 buf = io.BytesIO()
-fig.savefig(buf, format='png')
+plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
 
 
 
