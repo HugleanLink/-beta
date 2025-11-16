@@ -1,0 +1,2 @@
+station,valid,metar
+ZBHD,2013-01-07 21:00,ZBHD 072100Z AUTO 35002MPS //// // M06/M09 Q1026
