@@ -9,10 +9,10 @@ st.set_page_config(page_title="METAR 温度热图", layout="wide")
 data="metar_data"
 
 def ReadMetar(path):
-    dataframe=pd.read_csv(path)
-    dataframe.columns=["ICAO", "Time", "Metar"]
+    df=pd.read_csv(path)
+    df.columns=["ICAO", "Time", "Metar"]
     temperature=[]
-    for i in dataframe["Metar"]:
+    for i in df["Metar"]:
         parts=i.split()
         temp=None
         for i1 in parts:
@@ -25,11 +25,11 @@ def ReadMetar(path):
             else:
                 pass
         temperature.append(temp)
-    dataframe["Temp_C"]=temperature
-    dataframe["Time"] = pd.to_datetime(dataframe["Time"])
-    dataframe["month"] = dataframe["Time"].dt.month
-    dataframe["half_hour"]=dataframe["Time"].dt.hour * 2 + dataframe["Time"].dt.minute // 30
-    return dataframe
+    df["Temp_C"]=temperature
+    df["Time"] = pd.to_datetime(df["Time"])
+    df["month"] = df["Time"].dt.month
+    df["half_hour"]=df["Time"].dt.hour * 2 + df["Time"].dt.minute // 30
+    return df
 
 
 def ReadAirports():
@@ -87,4 +87,5 @@ st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
 
