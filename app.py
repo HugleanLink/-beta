@@ -5,6 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import io
 
+st.set_page_config(page_title="METAR 温度热图", layout="wide")
 data="metar_data"
 
 def ReadMetar(path):
@@ -86,3 +87,4 @@ st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
