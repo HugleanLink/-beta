@@ -19,11 +19,11 @@ def ReadMetar(path):
         temperature=None
         for i2 in parts:
             if "/" in i2 and len(i2)<=7 and ("M" in i2 or i2[0].isdigit()):
-                PositiveOrNegative=i2.split("/")[0]
-                if  PositiveOrNegative.startwith("M"):
-                    temperature=-int(PositiveOrNegative[1:])
+                positiveornegative=i2.split("/")[0]
+                if  positiveornegative.startwith("M"):
+                    temperature=-int(positiveornegative[1:])
                 else:
-                    temperature=int(PositiveOrNegative)
+                    temperature=int(positiveornegative)
             else:
                 pass
         temperatures.append(temperature)
@@ -78,6 +78,7 @@ st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
 
 
 
