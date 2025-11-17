@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 
 data="metar_data"
 
-
-
+@st.cache_data
 def ReadMetar(path):
     temperatures = []
     df=pd.read_csv(path)
@@ -33,7 +32,7 @@ def ReadMetar(path):
     df["hour"] = df["Time"].dt.hour
     return df
 
-
+@st.cache_data
 def ReadAirports():
     WhatAirport=[]
     for item in os.listdir(data):
@@ -60,14 +59,13 @@ year=st.selectbox("选择要查询的年份",years)
 filepath=f"{data}/{airport}/{year}.txt"
 df=ReadMetar(filepath)
 
-plt.rcParams['font.sans-serif'] = ['SimHei'] 
-plt.rcParams['axes.unicode_minus'] = False
+
 pivot = df.groupby(["Month", "hour"])["Temp_C"].mean().unstack()
 plt.figure(figsize=(15, 6))
-sns.heatmap(pivot,cmap="coolwarm",linewidths=0.3,cbar_kws={"label": "气温(°C)"})
+sns.heatmap(pivot,cmap="coolwarm",linewidths=0.3,cbar_kws={"label": "Temperature(°C)"})
 plt.title(f"{airport} {year} HeatMap")
-plt.xlabel("时间")
-plt.ylabel("月份")
+plt.xlabel("Time")
+plt.ylabel("Month")
 plt.xticks(ticks=range(24),labels=[f"{h:02d}:00" for h in range(24)],rotation=45)
 plt.yticks(rotation=0)
 
@@ -76,4 +74,3 @@ st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
-
