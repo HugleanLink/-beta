@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 
 
 data="metar_data"
-plt.rcParams['font.sans-serif'] = ['SimHei'] 
-plt.rcParams['axes.unicode_minus'] = False
+
 
 
 def ReadMetar(path):
@@ -61,7 +60,8 @@ year=st.selectbox("选择要查询的年份",years)
 filepath=f"{data}/{airport}/{year}.txt"
 df=ReadMetar(filepath)
 
-
+plt.rcParams['font.sans-serif'] = ['SimHei'] 
+plt.rcParams['axes.unicode_minus'] = False
 pivot = df.groupby(["Month", "hour"])["Temp_C"].mean().unstack()
 plt.figure(figsize=(15, 6))
 sns.heatmap(pivot,cmap="coolwarm",linewidths=0.3,cbar_kws={"label": "气温(°C)"})
@@ -76,3 +76,4 @@ st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
