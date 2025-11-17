@@ -1,102 +1,83 @@
 import os
+import io
 import pandas as pd
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
-import io
 
-st.set_page_config(page_title="METAR 温度热图", layout="wide")
-
-DATA_DIR = "metar_data"
+data="metar_data"
 
 
-# 解析 txt 为 DataFrame：按你的格式定制的
-def load_metar_file(path):
-    df = pd.read_csv(path)
-
-    # 确保列名一致
-    df.columns = ["ICAO", "Time", "Metar"]
-
-    # 从 METAR 中提取温度
-    # METAR 里温度格式如：M06/M07 或 01/M05
-    temps = []
-    for m in df["Metar"]:
-        parts = m.split()
-        temp = None
-        for p in parts:
-            if "/" in p and len(p) <= 7 and ("M" in p or p[0].isdigit()):
-                try:
-                    t = p.split("/")[0]
-                    if t.startswith("M"):
-                        temp = -int(t[1:])
-                    else:
-                        temp = int(t)
-                    break
-                except:
-                    pass
-        temps.append(temp)
-
-    df["Temp_C"] = temps
-
-    df["Time"] = pd.to_datetime(df["Time"])
-    df["month"] = df["Time"].dt.month
-    df["half_hour"] = df["Time"].dt.hour * 2 + df["Time"].dt.minute // 30
-
+def ReadMetar(path):
+    temperatures = []
+    df=pd.read_csv(path)
+    df.columns["ICAO","Time","Metar"]
+    for i1 in df["Metar"]:
+        parts=i1.split()
+        temperature=None
+        for i2 in parts:
+            if "/" in i2 and len(i2)<=7 and ("M" in i2 or i2[0].isdigit()):
+                PositiveOrNegative=i2.split("/")[0]
+                if  PositiveOrNegative.startwith("M"):
+                    temperature=-int(PositiveOrNegative[1:])
+                else:
+                    temperature=int(PositiveOrNegative)
+            else:
+                pass
+        temperatures.append(temperature)
+    df["Temp_C"]=temperatures
+    df["Time"]=pd.to_datetime(df["Time"])
+    df["Month"]=df["Time"].dt.month
+    df["hour"] = df["Time"].dt.hour
     return df
 
 
-# 自动扫描所有机场
-def get_airports():
-    return sorted([d for d in os.listdir(DATA_DIR) if os.path.isdir(os.path.join(DATA_DIR, d))])
+def ReadAirports():
+    WhatAirport=[]
+    for item in os.listdir(data):
+        if os.path.isdir(os.path.join(data, item)):
+            WhatAirport.append(item)
+    return sorted(WhatAirport)
 
 
-# 自动扫描年份
-def get_years(airport):
-    files = os.listdir(os.path.join(DATA_DIR, airport))
-    years = [f.replace(".txt", "") for f in files if f.endswith(".txt")]
-    return sorted(years)
+def Readyears(airport):
+    WhatYear = []
+    path = os.path.join(data, airport)
+    for f in os.listdir(path):
+        if f.endswith(".txt"):
+            WhatYear.append(f.replace(".txt", ""))
+    return sorted(WhatYear)
 
 
-st.title("温度热图查询")
+st.set_page_config(page_tite="气温热图查询",layout="wide")
+st.title("气温热图查询")
+airports= ReadAirports()
+airport=st.selectbox("选择要查询的机场",airports)
+years=Readyears(airport)
+year=st.selectbox("选择要查询的年份",years)
+filepath=f"{data}/{airport}/{year}.txt"
+df=ReadMetar(filepath)
 
-airports = get_airports()
-airport = st.selectbox("选择机场", airports)
 
-years = get_years(airport)
-year = st.selectbox("选择年份", years)
-
-filepath = f"{DATA_DIR}/{airport}/{year}.txt"
-
-st.info(f"当前读取：{filepath}")
-
-df = load_metar_file(filepath)
-
-# 构建热图透视表
-pivot = df.groupby(["month", "half_hour"])["Temp_C"].mean().unstack()
-
-# 做图
+pivot = df.groupby(["month", "hour"])["Temp_C"].mean().unstack()
 plt.figure(figsize=(18, 6))
-sns.heatmap(
-    pivot,
-    cmap="coolwarm",
-    linewidths=0.3,
-    cbar_kws={"label": "Temperature (°C)"}
-)
+sns.heatmap(pivot,camp="coolwarm",linewidths=0.3,cbar_kws={"label": "Temperature (°C)"})
 plt.title(f"{airport} {year} HeatMap")
 plt.xlabel("Time")
 plt.ylabel("Month")
-
 plt.xticks(
-    ticks=range(0, 48, 2),
+    ticks=range(24),
     labels=[f"{h:02d}:00" for h in range(24)],
     rotation=45
 )
 plt.yticks(rotation=0)
 
+
 st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
 
 
 
