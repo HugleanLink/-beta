@@ -5,7 +5,10 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
 data="metar_data"
+plt.rcParams['font.sans-serif'] = ['SimHei'] 
+plt.rcParams['axes.unicode_minus'] = False
 
 
 def ReadMetar(path):
@@ -60,16 +63,12 @@ df=ReadMetar(filepath)
 
 
 pivot = df.groupby(["Month", "hour"])["Temp_C"].mean().unstack()
-plt.figure(figsize=(18, 6))
-sns.heatmap(pivot,cmap="coolwarm",linewidths=0.3,cbar_kws={"label": "Temperature (°C)"})
+plt.figure(figsize=(15, 6))
+sns.heatmap(pivot,cmap="coolwarm",linewidths=0.3,cbar_kws={"label": "气温(°C)"})
 plt.title(f"{airport} {year} HeatMap")
-plt.xlabel("Time")
-plt.ylabel("Month")
-plt.xticks(
-    ticks=range(24),
-    labels=[f"{h:02d}:00" for h in range(24)],
-    rotation=45
-)
+plt.xlabel("时间")
+plt.ylabel("月份")
+plt.xticks(ticks=range(24),labels=[f"{h:02d}:00" for h in range(24)],rotation=45)
 plt.yticks(rotation=0)
 
 
@@ -77,16 +76,3 @@ st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
-
-
-
-
-
-
-
-
-
-
-
-
-
