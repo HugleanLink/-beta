@@ -5,8 +5,6 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
-st.set_page_config(page_title="气温热图查询",layout="wide")
 data="metar_data"
 
 
@@ -20,7 +18,7 @@ def ReadMetar(path):
         for i2 in parts:
             if "/" in i2 and len(i2)<=7 and ("M" in i2 or i2[0].isdigit()):
                 positiveornegative=i2.split("/")[0]
-                if  positiveornegative.startwith("M"):
+                if  positiveornegative.startswith("M"):
                     temperature=-int(positiveornegative[1:])
                 else:
                     temperature=int(positiveornegative)
@@ -51,6 +49,7 @@ def Readyears(airport):
     return sorted(WhatYear)
 
 
+st.set_page_config(page_title="气温热图查询",layout="wide")
 st.title("气温热图查询")
 airports= ReadAirports()
 airport=st.selectbox("选择要查询的机场",airports)
@@ -60,9 +59,9 @@ filepath=f"{data}/{airport}/{year}.txt"
 df=ReadMetar(filepath)
 
 
-pivot = df.groupby(["month", "hour"])["Temp_C"].mean().unstack()
+pivot = df.groupby(["Month", "hour"])["Temp_C"].mean().unstack()
 plt.figure(figsize=(18, 6))
-sns.heatmap(pivot,camp="coolwarm",linewidths=0.3,cbar_kws={"label": "Temperature (°C)"})
+sns.heatmap(pivot,cmap="coolwarm",linewidths=0.3,cbar_kws={"label": "Temperature (°C)"})
 plt.title(f"{airport} {year} HeatMap")
 plt.xlabel("Time")
 plt.ylabel("Month")
