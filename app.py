@@ -6,7 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-st.set_page_config(page_tite="气温热图查询",layout="wide")
+st.set_page_config(page_title="气温热图查询",layout="wide")
 data="metar_data"
 
 
@@ -78,6 +78,7 @@ st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
 
 
 
