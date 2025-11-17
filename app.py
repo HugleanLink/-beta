@@ -5,6 +5,8 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
+st.set_page_config(page_tite="气温热图查询",layout="wide")
 data="metar_data"
 
 
@@ -49,7 +51,6 @@ def Readyears(airport):
     return sorted(WhatYear)
 
 
-st.set_page_config(page_tite="气温热图查询",layout="wide")
 st.title("气温热图查询")
 airports= ReadAirports()
 airport=st.selectbox("选择要查询的机场",airports)
@@ -77,6 +78,7 @@ st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
 
 
 
