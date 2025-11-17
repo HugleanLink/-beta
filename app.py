@@ -13,7 +13,7 @@ data="metar_data"
 def ReadMetar(path):
     temperatures = []
     df=pd.read_csv(path)
-    df.columns["ICAO","Time","Metar"]
+    df.columns=["ICAO","Time","Metar"]
     for i1 in df["Metar"]:
         parts=i1.split()
         temperature=None
@@ -78,6 +78,7 @@ st.pyplot(plt)
 buf = io.BytesIO()
 plt.savefig(buf, format='png')
 st.download_button("下载 PNG", data=buf.getvalue(), file_name=f"{airport}_{year}.png")
+
 
 
 
